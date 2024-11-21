@@ -16,31 +16,32 @@ async function crawlJobData() {
             }
         });
 
-        // Go to the TopCV job listing page
-        // await page.goto('https://www.topcv.vn/viec-lam-it', {waitUntil: 'networkidle2', timeout: 240000});
         await page.goto('https://www.topcv.vn/viec-lam-it');
         const element = await page.waitForSelector('div.job-item-2');
 
-        // Extract the page content
-        const jobData = await page.evaluate(() => {
-            const jobs = [];
-            var els = document.querySelectorAll(".job-item-2");
-            [].forEach.call(els, function (job) {
-                const url = job.querySelector('.title a')?.href;
-
-                if (url) {
-                    jobs.push(url);
-                }
-            });
-            return jobs;
-        });
-
-        console.log('Crawled Job Data:', jobData);
+        let jobLinks = await crawlLink(page);
+        console.log('Crawled Job Data:', jobLinks);
     } catch (error) {
         console.error('Error while crawling job data:', error.message);
     } finally {
         await browser.close();
     }
+}
+
+async function crawlLink(page) {
+    // Extract the page content
+    return await page.evaluate(() => {
+        const jobs = [];
+        var els = document.querySelectorAll(".job-item-2");
+        [].forEach.call(els, function (job) {
+            const url = job.querySelector('.title a')?.href;
+
+            if (url) {
+                jobs.push(url);
+            }
+        });
+        return jobs;
+    });
 }
 
 crawlJobData();
